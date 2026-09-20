@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Diet Calculation</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+    }
+
+    body {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        min-height: 100vh;
+        padding: 20px;
+        color: #222;
+    }
+
+    .container {
+        max-width: 1250px;
+        margin: auto;
+        background: rgba(255,255,255,0.96);
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    }
+
+    .header {
+        text-align: center;
+        padding: 20px;
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, #ff6a00, #ee0979);
+        color: white;
+        border-radius: 15px;
+    }
+
+    .header h1 {
+        font-size: 30px;
+        margin-bottom: 8px;
+    }
+
+    .header p {
+        font-size: 15px;
+    }
+
+    .input-panel {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .input-card {
+        padding: 18px;
+        border-radius: 14px;
+        color: white;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+
+    .sad-card {
+        background: linear-gradient(135deg,#11998e,#38ef7d);
+    }
+
+    .child1-card {
+        background: linear-gradient(135deg,#2193b0,#6dd5ed);
+    }
+
+    .child2-card {
+        background: linear-gradient(135deg,#f7971e,#ffd200);
+    }
+
+    .input-card h3 {
+        margin-bottom: 10px;
+    }
+
+    .input-card input {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 18px;
+        outline: none;
+    }
+
+    .section-title {
+        margin: 25px 0 12px;
+        padding: 12px 15px;
+        border-radius: 10px;
+        background: linear-gradient(90deg,#141e30,#243b55);
+        color: white;
+        font-size: 19px;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+        border-radius: 12px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 850px;
+        background: white;
+    }
+
+    th {
+        background: #292e49;
+        color: white;
+        padding: 12px 8px;
+        font-size: 14px;
+    }
+
+    td {
+        padding: 9px 7px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+    }
+
+    tr:nth-child(even) {
+        background: #f7f8fc;
+    }
+
+    tr:hover {
+        background: #eef2ff;
+    }
+
+    .food-name {
+        text-align: left;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .value-input {
+        width: 80px;
+        padding: 7px;
+        border: 1px solid #bbb;
+        border-radius: 6px;
+        text-align: center;
+    }
+
+    .calculated {
+        font-weight: bold;
+        color: #673ab7;
+    }
+
+    .total {
+        font-weight: bold;
+        color: #e91e63;
+    }
+
+    .buttons {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 25px;
+        flex-wrap: wrap;
+    }
+
+    button {
+        border: none;
+        padding: 12px 25px;
+        border-radius: 10px;
+        color: white;
+        font-size: 15px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        transform: translateY(-2px);
+    }
+
+    .calculate {
+        background: linear-gradient(135deg,#00b09b,#96c93d);
+    }
+
+    .reset {
+        background: linear-gradient(135deg,#ff416c,#ff4b2b);
+    }
+
+    .print {
+        background: linear-gradient(135deg,#396afc,#2948ff);
+    }
+
+    .summary {
+        margin-top: 25px;
+        padding: 20px;
+        background: #f1f4ff;
+        border-radius: 15px;
+        text-align: center;
+    }
+
+    .summary h2 {
+        margin-bottom: 10px;
+        color: #292e49;
+    }
+
+    .grand-total {
+        font-size: 30px;
+        font-weight: bold;
+        color: #e91e63;
+    }
+
+    @media(max-width:700px) {
+        body {
+            padding: 8px;
+        }
+
+        .container {
+            padding: 12px;
+        }
+
+        .input-panel {
+            grid-template-columns: 1fr;
+        }
+
+        .header h1 {
+            font-size: 23px;
+        }
+    }
+
+    @media print {
+        body {
+            background: white;
+        }
+
+        .container {
+            box-shadow: none;
+        }
+
+        .buttons,
+        .input-panel {
+            display: none;
+        }
+
+        table {
+            min-width: 100%;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>🍎 Daily Diet Calculation</h1>
+        <p>SAD • Child 1 • Child 2 • Wastage • Total</p>
+    </div>
+
+    <!-- MAIN INPUTS -->
+    <div class="input-panel">
+
+        <div class="input-card sad-card">
+            <h3>SAD</h3>
+            <input type="number" id="sadDefault" value="29"
+                   onchange="updateDefaults()">
+        </div>
+
+        <div class="input-card child1-card">
+            <h3>Child - 1</h3>
+            <input type="number" id="child1Default" value="0"
+                   onchange="updateDefaults()">
+        </div>
+
+        <div class="input-card child2-card">
+            <h3>Child - 2</h3>
+            <input type="number" id="child2Default" value="1"
+                   onchange="updateDefaults()">
+        </div>
+
+    </div>
+
+    <!-- VEGETABLE SECTION -->
+    <div class="section-title">
+        🥕 Vegetables & Other Items
+    </div>
+
+    <div class="table-wrapper">
+    <table id="mainTable">
+
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Food Item</th>
+                <th>SAD</th>
+                <th>SAD Value</th>
+                <th>Child 1</th>
+                <th>Child 1 Value</th>
+                <th>Child 2</th>
+                <th>Child 2 Value</th>
+                <th>Final Value</th>
+                <th>Wastage</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        <tr data-sad="0.20" data-c1="0.10" data-c2="0.10" data-waste="0.25">
+            <td>1</td>
+            <td class="food-name">காய்கறிகள்</td>
+        </tr>
+
+        <tr data-sad="0.10" data-waste="0.125">
+            <td>2</td>
+            <td class="food-name">கீரைகள்</td>
+        </tr>
+
+        <tr data-sad="0.05" data-c1="0.015" data-c2="0.020">
+            <td>3</td>
+            <td class="food-name">வெங்காயம்</td>
+        </tr>
+
+        <tr data-sad="0.05" data-c1="0.010" data-c2="0.025">
+            <td>4</td>
+            <td class="food-name">தக்காளி</td>
+        </tr>
+
+        <tr data-sad="0.025">
+            <td>5</td>
+            <td class="food-name">கேரட்</td>
+        </tr>
+
+        <tr data-sad="0.025">
+            <td>6</td>
+            <td class="food-name">பீன்ஸ்</td>
+        </tr>
+
+        <tr data-sad="1">
+            <td>7</td>
+            <td class="food-name">முட்டை</td>
+        </tr>
+
+        <tr data-sad="1" data-c1="1">
+            <td>8</td>
+            <td class="food-name">பழம்</td>
+        </tr>
+
+        <tr data-sad="0.001">
+            <td>9</td>
+            <td class="food-name">கருவேப்பிலை</td>
+        </tr>
+
+        <tr data-sad="0.001">
+            <td>10</td>
+            <td class="food-name">கொத்தமல்லி</td>
+        </tr>
+
+        </tbody>
+    </table>
+    </div>
+
+
+    <!-- DAL / MASALA -->
+    <div class="section-title">
+        🌾 Dal, Oil & Masala Items
+    </div>
+
+    <div class="table-wrapper">
+    <table id="masalaTable">
+
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Food Item</th>
+                <th>SAD</th>
+                <th>SAD Value</th>
+                <th>Child 1</th>
+                <th>Child 1 Value</th>
+                <th>Child 2</th>
+                <th>Child 2 Value</th>
+                <th>Final Value</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        <tr data-sad="0.05" data-c1="0.015" data-c2="0.020">
+            <td>1</td>
+            <td class="food-name">துவரம் பருப்பு</td>
+        </tr>
+
+        <tr data-sad="0.031" data-c1="0.01" data-c2="0.01">
+            <td>2</td>
+            <td class="food-name">உளுந்தம் பருப்பு</td>
+        </tr>
+
+        <tr data-sad="0.015" data-c1="0.01" data-c2="0.01">
+            <td>3</td>
+            <td class="food-name">கடலை எண்ணெய்</td>
+        </tr>
+
+        <tr data-sad="0.001" data-c1="0.001" data-c2="0.001">
+            <td>4</td>
+            <td class="food-name">கடுகு</td>
+        </tr>
+
+        <tr data-sad="0.01" data-c1="0.005" data-c2="0.005">
+            <td>5</td>
+            <td class="food-name">உப்பு</td>
+        </tr>
+
+        <tr data-sad="0.01" data-c1="0.005" data-c2="0.005">
+            <td>6</td>
+            <td class="food-name">புளி</td>
+        </tr>
+
+        <tr data-sad="0.0025">
+            <td>7</td>
+            <td class="food-name">வெந்தயம்</td>
+        </tr>
+
+        <tr data-sad="0.075">
+            <td>8</td>
+            <td class="food-name">ரவை</td>
+        </tr>
+
+        <tr data-sad="0.03">
+            <td>9</td>
+            <td class="food-name">கொண்டைக்கடலை</td>
+        </tr>
+
+        <tr data-sad="0.003" data-c1="0.001" data-c2="0.002">
+            <td>10</td>
+            <td class="food-name">மிளகாய்</td>
+        </tr>
+
+        <tr>
+            <td>11</td>
+            <td class="food-name">கறி பவுடர்</td>
+        </tr>
+
+      <tr data-sad="0.010" data-c1="0.010" data-c2="0.010">
+
+            <td>12</td>
+            <td class="food-name">பாசிப்பருப்பு</td>
+        </tr>
+
+      <tr data-sad="0.001" data-c1="0.001" data-c2="0.001">
+
+            <td>13</td>
+            <td class="food-name">மிளகு</td>
+        </tr>
+
+         <tr data-sad="0.001" data-c1="0.001" data-c2="0.001">
+
+            <td>14</td>
+            <td class="food-name">சீரகம்</td>
+        </tr>
+
+        </tbody>
+    </table>
+    </div>
+
+
+    <!-- WEDNESDAY SATURDAY -->
+    <div class="section-title">
+        📅 Wednesday & Saturday Only
+    </div>
+
+    <div class="table-wrapper">
+    <table id="specialTable">
+
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Food Item</th>
+                <th>SAD</th>
+                <th>SAD Value</th>
+                <th>Child 1</th>
+                <th>Child 1 Value</th>
+                <th>Child 2</th>
+                <th>Child 2 Value</th>
+                <th>Final Value</th>
+                <th>Wastage</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        <tr data-sad="0.10" data-c1="0.050" data-c2="0.050" data-waste="0.25">
+            <td>1</td>
+            <td class="food-name">காய்கறிகள்</td>
+        </tr>
+
+        <tr data-sad="0.10" data-c1="0.050" data-c2="0.050" data-waste="0.20">
+            <td>2</td>
+            <td class="food-name">உருளைக்கிழங்கு</td>
+        </tr>
+
+        </tbody>
+    </table>
+    </div>
+
+
+    <div class="buttons">
+        <button class="calculate" onclick="calculateAll()">
+            🧮 Calculate
+        </button>
+
+        <button class="reset" onclick="resetAll()">
+            🔄 Reset
+        </button>
+
+        <button class="print" onclick="window.print()">
+            🖨️ Print
+        </button>
+    </div>
+
+
+    <div class="summary">
+        <h2>Grand Total</h2>
+        <div class="grand-total" id="grandTotal">0.00</div>
+    </div>
+
+</div>
+
+
+<script>
+
+function createInputs() {
+
+    const tables = document.querySelectorAll("table");
+
+    tables.forEach(table => {
+
+        const rows = table.querySelectorAll("tbody tr");
+
+        rows.forEach(row => {
+
+            let cells = row.children;
+
+            // Prevent duplicate inputs
+            if(cells.length > 2) return;
+
+            const sad = document.getElementById("sadDefault").value;
+            const child1 = document.getElementById("child1Default").value;
+            const child2 = document.getElementById("child2Default").value;
+
+            row.innerHTML += `
+                <td>
+                    <input class="value-input sad-input"
+                           type="number" value="${sad}">
+                </td>
+
+                <td class="calculated sad-value">0.00</td>
+
+                <td>
+                    <input class="value-input c1-input"
+                           type="number" value="${child1}">
+                </td>
+
+                <td class="calculated c1-value">0.00</td>
+
+                <td>
+                    <input class="value-input c2-input"
+                           type="number" value="${child2}">
+                </td>
+
+                <td class="calculated c2-value">0.00</td>
+
+                <td class="calculated f-value">0.00</td>
+            `;
+
+            if(table.id !== "masalaTable") {
+
+                row.innerHTML += `
+                    <td class="calculated wastage">0.00</td>
+                    <td class="total">0.00</td>
+                `;
+            }
+        });
+    });
+}
+
+
+function calculateTable(table) {
+
+    let total = 0;
+
+    const rows = table.querySelectorAll("tbody tr");
+
+    rows.forEach(row => {
+
+        const sadInput = row.querySelector(".sad-input");
+        const c1Input = row.querySelector(".c1-input");
+        const c2Input = row.querySelector(".c2-input");
+
+        if(!sadInput) return;
+
+        const sad = parseFloat(sadInput.value) || 0;
+        const c1 = parseFloat(c1Input.value) || 0;
+        const c2 = parseFloat(c2Input.value) || 0;
+
+        const sadRate = parseFloat(row.dataset.sad) || 0;
+        const c1Rate = parseFloat(row.dataset.c1) || 0;
+        const c2Rate = parseFloat(row.dataset.c2) || 0;
+        const wasteRate = parseFloat(row.dataset.waste) || 0;
+
+        const sadValue = sad * sadRate;
+        const c1Value = c1 * c1Rate;
+        const c2Value = c2 * c2Rate;
+
+        const fValue = sadValue + c1Value + c2Value;
+
+        const wastage = fValue * wasteRate;
+
+        const rowTotal = fValue + wastage;
+
+        row.querySelector(".sad-value").textContent =
+            sadValue.toFixed(3);
+
+        row.querySelector(".c1-value").textContent =
+            c1Value.toFixed(3);
+
+        row.querySelector(".c2-value").textContent =
+            c2Value.toFixed(3);
+
+        row.querySelector(".f-value").textContent =
+            fValue.toFixed(3);
+
+        const wasteElement = row.querySelector(".wastage");
+        const totalElement = row.querySelector(".total");
+
+        if(wasteElement) {
+            wasteElement.textContent = wastage.toFixed(3);
+        }
+
+        if(totalElement) {
+            totalElement.textContent = rowTotal.toFixed(3);
+        }
+
+        total += rowTotal;
+    });
+
+    return total;
+}
+
+
+function calculateAll() {
+
+    let grandTotal = 0;
+
+    document.querySelectorAll("table").forEach(table => {
+        grandTotal += calculateTable(table);
+    });
+
+    document.getElementById("grandTotal").textContent =
+        grandTotal.toFixed(3);
+}
+
+
+function updateDefaults() {
+
+    const sad = document.getElementById("sadDefault").value;
+    const child1 = document.getElementById("child1Default").value;
+    const child2 = document.getElementById("child2Default").value;
+
+    document.querySelectorAll(".sad-input").forEach(input => {
+        input.value = sad;
+    });
+
+    document.querySelectorAll(".c1-input").forEach(input => {
+        input.value = child1;
+    });
+
+    document.querySelectorAll(".c2-input").forEach(input => {
+        input.value = child2;
+    });
+
+    calculateAll();
+}
+
+
+function resetAll() {
+
+    document.getElementById("sadDefault").value = 0;
+    document.getElementById("child1Default").value = 0;
+    document.getElementById("child2Default").value = 0;
+
+    updateDefaults();
+}
+
+
+createInputs();
+calculateAll();
+
+</script>
+
+</body>
+
+<center> <B>Terms of use | privacy policy</B> </center>
+<center> <I> Powered by Krishna Kumar </I> </center>
+<center> @ copyright </center>
+</html>
